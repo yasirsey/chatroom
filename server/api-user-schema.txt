@@ -1,0 +1,37 @@
+** PUBLIC ** /api
+
+@USERS /auth
+[token] : { id }      -> req.id
+
+post        /login          -> login { who(username || email) && password } return token
+
+@USERS /users
+
+-- public --
+[user && users] : { id, username, bio, profilePhoto, role }
+
+get         /               -> return users
+get         /:id            -> return user by id
+post        /               -> create user and return created user token { username && email && password && bio && profilePhoto }
+post        /forgotpassword -> send token email and save profile { who(email || username) }
+get         /resetpassword/:token      -> check token is valid
+patch       /resetpassword/:token      -> if token is valid change password { password }
+
+-- user auth { authorization } --
+[me] : { id, username, email, bio, profilePhoto, role }
+
+get         /me             -> get auth user
+patch       /me             -> patch auth user { username || email || bio || profilePhoto || password }
+delete      /me             -> delete auth user { id }
+
+------------------------------------------------------------------------------------------------------------
+
+** ADMIN ** /api/admin
+
+@USERS /users
+
+-- admin auth { authorization } --
+get         /               -> return users
+get         /:id            -> return user by id
+patch       /:id            -> patch user by id { ALL }
+delete      /:id            -> delete user by id { id }
